@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 import matplotlib.cm as cm
+from matplotlib.colors import LogNorm
+from copy import deepcopy
 
 rcParams['savefig.directory'] = '../report/figs/'
 
@@ -18,18 +20,26 @@ def r_to_p(rs, N):
 def plot_p_vs_r(r_max: float=.5, n_points: int=5000, N: int=250, _ps: tuple=(.05, .01, .001, 1e-8)):
     rs = r_max * np.arange(n_points+1) / n_points
     ps = r_to_p(rs, N)
-    plt.plot(rs, ps, lw=2)
+    fig = plt.figure(figsize=[7.75]*2)
+    ax = fig.add_subplot(111)
+    ax.plot(rs, ps, lw=2)
     xticks = list(plt.xticks()[0])
+    quantiles = list()
     for p in _ps:
-        plt.plot([0, r_max], [p, p], 'r-.')
+        ax.plot([0, r_max], [p, p], 'r-.', lw=2)
         quantile = rs[np.where(ps <= p)][0]
-        plt.plot([quantile, quantile], [ps[-1], ps[0]], 'r-.')
+        ax.plot([quantile, quantile], [ps[-1], ps[0]], 'r-.', lw=2)
         xticks.append(quantile)
+        quantiles.append(quantile)
     xticks.sort()
-    plt.xticks(xticks, rotation=45)
-    plt.yscale('log')
-    plt.xlabel('Pearson\'s r')
-    plt.ylabel('p-value')
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(['{:<.4}'.format(tick) for tick in xticks])
+    for x, tick in zip(xticks, ax.get_xticklabels()):
+        if x in quantiles:
+            tick.set_rotation(37.5)
+    ax.set_yscale('log')
+    ax.set_xlabel('Pearson\'s r')
+    ax.set_ylabel('p-value')
     plt.title('p-value vs Pearson\'s r with {} samples'.format(N))
     plt.grid()
     plt.show()
@@ -227,10 +237,13 @@ class ClusteredSample:
     def __lt__(self, other):
         return (self.cluster < other.cluster) or (self.cluster == other.cluster and self.silhouette_width < other.silhouette_width)
 
-def get_clusters(sample_data: list) -> list:
+def get_clusters(sample_data: list, keep_other_samples: bool=False) -> list:
     sample_names = set([sample.name for sample in sample_data])
     clustering = load_tsv('BRCA_clustering.tsv')
-    clustering = [ClusteredSample(c) for c in clustering if c[0] in sample_names]
+    if keep_other_samples:
+        clustering = list(map(ClusteredSample, clustering))
+    else:
+        clustering = [ClusteredSample(c) for c in clustering if c[0] in sample_names]
     clustering.sort()
     clusters = list()
     for c in clustering:
@@ -239,8 +252,8 @@ def get_clusters(sample_data: list) -> list:
         clusters[-1].append(c)
     return clusters
 
-def plot_silhouette(sample_data: list):
-    clusters = get_clusters(sample_data)
+def plot_silhouette(sample_data: list, keep_other_samples: bool=False):
+    clusters = get_clusters(sample_data, keep_other_samples)
     nb_elems = 0
     for idx, cluster in reversed(list(enumerate(clusters))):
         color = cm.spectral(idx / len(clusters))
@@ -250,12 +263,21 @@ def plot_silhouette(sample_data: list):
     plt.legend(loc='lower right')
     plt.yticks([])
     plt.grid()
-    plt.ylim((-5, 255))
+    plt.ylim((-5, np.sum([len(cluster) for cluster in clusters])+5))
     plt.xlim((-.25, .75))
     NB_XTICKS = 20
     plt.xticks(np.arange(NB_XTICKS+1) / NB_XTICKS - .25, rotation=45)
     plt.xlabel('Silhouette Width')
     plt.show()
+
+def cluster_to_abs(cluster: list, sample_data: list) -> list:
+    purities = list()
+    for clustered_sample in cluster:
+        for sample in sample_data:
+            if clustered_sample.name == sample.name:
+                purities.append(sample.absolute_purity)
+                break
+    return purities
 
 def plot_abs_per_cluster(sample_data: list):
     clusters = get_clusters(sample_data)
@@ -310,6 +332,75 @@ def plot_silhouette_distribution_per_cluster(sample_data: list):
     plt.legend()
     plt.show()
 
+def compare_clustered_abs_means(sample_data):
+    clusters = get_clusters(sample_data)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    all_xs = list()
+    for idx, cluster in enumerate(clusters):
+        color = cm.spectral(idx / len(clusters))
+        all_xs.append(list())
+        for clustered_sample in cluster:
+            for sample in sample_data:
+                if sample.name == clustered_sample.name:
+                    all_xs[-1].append(sample.absolute_purity)
+                    break
+    ps = np.zeros([len(clusters)]*2, dtype=np.float)
+    non_significant = list()
+    for i in range(len(all_xs)):
+        for j in range(i+1, len(all_xs)):
+            p = stats.ttest_ind(all_xs[i], all_xs[j], equal_var=False)[-1]
+            ps[j,i] = ps[i,j] = p
+            if p > .05:
+                non_significant.append((i, j))
+    fig = plt.figure(figsize=(8, 8))
+    modified_cmap = deepcopy(cm.get_cmap('inferno'))
+    modified_cmap.set_bad((0,0,0))
+    ax = fig.add_axes([0.1, 0.1, 0.77, 0.77])
+    ax_color = fig.add_axes([0.875, 0.1, 0.03, 0.77])
+    img = ax.matshow(ps, cmap=modified_cmap, norm=LogNorm(vmin=1e-12, vmax=1))
+    ax.set_xticklabels(map(str, range(len(clusters)+1)))
+    ax.set_yticklabels(map(str, range(len(clusters)+1)))
+    ax.set_xlabel('Cluster')
+    ax.set_ylabel('Cluster')
+    for i, j in non_significant:
+        ax.plot(i, j, 'kx', markersize=25, markeredgewidth=10)
+        ax.plot(j, i, 'kx', markersize=25, markeredgewidth=10)
+    ax.set_xlim(-.5, len(clusters)-.5)
+    ax.set_ylim(-.5, len(clusters)-.5)
+    ax.xaxis.tick_bottom()
+    ax.set_title('Significance of the difference between\nmeans of each cluster pair')
+    fig.colorbar(img, ticks=np.power(10., -np.arange(13)), cax=ax_color, format='%1.0e')
+    fig.show()
+    plt.show()
+
+def plot_clusters_basic_stats(sample_data):
+    clusters = get_clusters(sample_data)
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(np.arange(len(clusters))+1, [len(cluster) for cluster in clusters],
+            'b-.', marker='o', markersize=8, lw=1, label='Cluster size')
+    ax.plot(np.arange(len(clusters))+1, [(np.array([sample.silhouette_width for sample in cluster]) < 0).sum() for cluster in clusters],
+            'm-.', marker='o', markersize=8, lw=1, label='silhouette < 0')
+    ax_right = ax.twinx()
+    ax_right.plot(np.arange(len(clusters))+1, [np.max(cluster_to_abs(cluster, sample_data)) for cluster in clusters],
+                  'g-.', marker='*', markersize=15, lw=1, label='max purity')
+    ax_right.plot(np.arange(len(clusters))+1, [np.mean(cluster_to_abs(cluster, sample_data)) for cluster in clusters],
+                  'c-.', marker='*', markersize=15, lw=1, label='avg purity')
+    ax_right.plot(np.arange(len(clusters))+1, [np.min(cluster_to_abs(cluster, sample_data)) for cluster in clusters],
+                  'r-.', marker='*', markersize=15, lw=1, label='min purity')
+    ax.set_xlabel('Cluster')
+    ax.set_ylabel('Number of samples')
+    ax_right.set_ylabel('ABSOLUTE purity')
+    ax.set_xlim(.5, len(clusters)+.5)
+    ax.set_yticks(np.arange(11) / 10 * ax.get_ylim()[1])
+    ax_right.set_yticks(np.arange(11)/10)
+    ax.set_title('Clusters size and ABSOLUTE purity statistics per cluster')
+    ax.grid(axis='y')
+    ax.legend(loc='center left', bbox_to_anchor=(0., .35))
+    ax_right.legend(loc='upper right')
+    plt.show()
+
 def main():
     #plot_p_vs_r()
     sample_data = load_sample_data('BRCA-3.tsv')
@@ -324,6 +415,8 @@ def main():
     #plot_abs_per_cluster(sample_data)
     #print_silhouette_details(sample_data)
     #plot_silhouette_distribution_per_cluster(sample_data)
+    #compare_clustered_abs_means(sample_data)
+    plot_clusters_basic_stats(sample_data)
 
 if __name__ == '__main__':
     main()

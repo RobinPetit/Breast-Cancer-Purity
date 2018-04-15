@@ -90,10 +90,8 @@ When comparing IHC purity versus ABSOLUTE purity, we observed that these measure
 Yet, they do correlate significantly with $p < 10^{-8}$.
 
 \begin{figure}[!h]
-%\vspace{-.5cm}
 \hspace{-.6cm}
-\includegraphics[width=.5\textwidth,trim={0 0 0 1.5cm},clip]{figs/abs_vs_ihc.eps}
-\vspace{-1cm}
+\includegraphics[width=.5\textwidth,trim={0 2cm 0 2cm},clip]{figs/abs_vs_ihc.eps}
 \caption{\textit{(Up)} Couples (IHC, ABSOLUTE) purities. The dot-dashed line is the theoretical $\text{IHC} = \text{ABSOLUTE}$ curve. It is known that pathologists
 are biased on their work~\citep{fandel2008we}, in this case, IHC purities seem to overestimate the purity of tumors.
 \textit{(Down)} Frequency of difference between IHC purity and ABSOLUTE purity.\label{fig:abs vs ihc}}
@@ -113,37 +111,31 @@ of samples have at least one of these five genes which is mutated.
 
 \begin{figure}[!h]
 \hspace{-.5cm}
-{\includegraphics[width=.55\textwidth,trim={0 0 0 2cm},clip]{figs/mutations_distribution.eps}
+\includegraphics[width=.55\textwidth,trim={0 0 0 2cm},clip]{figs/mutations_distribution.eps}
 \vspace{-1cm}
-\caption{Distribution of the number of mutations of each gene from Table~\ref{tab:genes} and of the sum on all genes.\label{fig:mutations distribution}}}
+\caption{Distribution of the number of mutations of each gene from Table~\ref{tab:genes} and of the sum on all genes.\label{fig:mutations distribution}}
 \end{figure}
 
 \begin{figure*}[!t]
 \begin{subfigure}{.49\textwidth}
-\vspace{-.75cm}
-\hspace{-.5cm}
-\includegraphics[width=1.1\textwidth]{figs/nb_muts_vs_abs.eps}
+\includegraphics[width=1.\textwidth]{figs/nb_muts_vs_abs.eps}
 \vspace{-1cm}
 \subcaption{Relation between ABSOLUTE purity and number of mutations for each gene and for the cumulation of every genes. Significance of the dependence of these two quantities
 is indicated next to the name of the concerned gene.\label{fig:nb mutations vs abs}}
 \end{subfigure}
 \begin{subfigure}{.49\textwidth}
-\vspace{-.75cm}
-\includegraphics[width=1.1\textwidth]{figs/nb_muts_vs_abs_binarized.eps}
+\includegraphics[width=1.\textwidth]{figs/nb_muts_vs_abs_binarized.eps}
 \vspace{-1cm}
 \subcaption{Relation between ABSOLUTE purity and presence of mutations for each gene and for the cumulation of every genes. Significance of the dependence of these two quantities
 is indicated next to the name of the concerned gene.\label{fig:nb mutations vs abs binarized}}
 \end{subfigure}
 \begin{subfigure}{.49\textwidth}
-\vspace{-.75cm}
-\hspace{-.5cm}
-\includegraphics[width=1.1\textwidth]{figs/nb_muts_vs_ihc.eps}
+\includegraphics[width=1.\textwidth]{figs/nb_muts_vs_ihc.eps}
 \vspace{-1cm}
 \subcaption{Adaptation of Figure~\ref{fig:nb mutations vs abs} for IHC purity.\label{fig:nb mutations vs ihc}}
 \end{subfigure}
 \begin{subfigure}{.49\textwidth}
-\vspace{-.75cm}
-\includegraphics[width=1.1\textwidth]{figs/nb_muts_vs_ihc_binarized.eps}
+\includegraphics[width=1.\textwidth]{figs/nb_muts_vs_ihc_binarized.eps}
 \vspace{-1cm}
 \subcaption{Adaptation of Figure~\ref{fig:nb mutations vs abs binarized} for IHC purity.\label{fig:nb mutations vs ihc binarized}}
 \end{subfigure}
@@ -160,8 +152,9 @@ correlation increased from $-0.127$ to $-0.161$. Also a new pair of genes has be
 no pair has changed significance threshold. We also noticed that this last pair has positive correlation.
 
 \begin{table}[!h]
-\begin{subtable}{.5\textwidth}
-\begin{tabular}{r|c|c|c|c}
+\footnotesize
+\begin{subtable}{.48\textwidth}
+\begin{tabular}{r|l|l|l|l}
        & GATA3        & MAP3K1   & PIK3CA       & TP53           \\ \hline
 CDH1   & $-0.129^{*}$ & $-0.034$ & $+0.114$     & $-0.210^{***}$ \\ \hline
 GATA3  &              & $+0.011$ & $-0.114$     & $-0.078$       \\ \hline
@@ -170,9 +163,9 @@ PIK3CA &              &          &              & $-0.127^{*}$
 \end{tabular}
 \subcaption{Pearson's $r$ coefficient of the number of mutations for each pair of genes.\label{tab:correlations nb mutations}}
 \end{subtable}
-\begin{subtable}{.5\textwidth}
-\begin{tabular}{r|c|c|c|c}
-       & GATA3        & MAP3K1   & PIK3CA       & TP53           \\ \hline
+\begin{subtable}{.48\textwidth}
+\begin{tabular}{r||l|l|l|l}
+       & GATA3        & MAP3K1   & PIK3CA       & TP53           \\ \hline \hline
 CDH1   & $-0.131^{*}$ & $-0.037$ & $+0.125^{*}$ & $-0.214^{***}$ \\ \hline
 GATA3  &              & $+0.008$ & $-0.107$     & $-0.075$       \\ \hline
 MAP3K1 &              &          & $+0.073$     & $-0.175^{**}$  \\ \hline
@@ -193,27 +186,37 @@ and~\ref{fig:nb mutations vs ihc binarized}).
 
 \subsection{Clustering}
 
-\TODO{Detail Figures~\ref{fig:clustering}~and~\ref{fig:boxplot purity}}
-
 \begin{figure}
-\hspace{-.5cm}
 \begin{subfigure}{.5\textwidth}
-\vspace{-.75cm}
-\includegraphics[width=1.1\textwidth]{figs/silhouette.eps}
+\hspace{-.5cm}
+\includegraphics[width=1.1\textwidth,trim={0 0 0 1.5cm},clip]{figs/silhouette.eps}
 \subcaption{Silhouette analysis for NMF clustering with $7$ clusters.\label{fig:silhouettes}}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
-\includegraphics[width=1.1\textwidth]{figs/clustered_silhouette_boxplot.eps}
+\hspace{-.5cm}
+\includegraphics[width=1.1\textwidth,trim={0 0 0 1cm},clip]{figs/clustered_silhouette_boxplot.eps}
 \subcaption{Distribution of silhouette width for each cluster.\label{fig:boxplot silhouette}}
 \end{subfigure}
-\caption{Clustering of the samples and silhouette distribution.\label{fig:clustering}}
+\begin{subfigure}{.5\textwidth}
+\hspace{-.5cm}
+\includegraphics[width=1.1\textwidth,trim={0 0 0 1cm},clip]{figs/clustered_purity_boxplot.eps}
+\subcaption{Distribution of silhouette width for each cluster.\label{fig:boxplot ABSOLUTE}}
+\end{subfigure}
+\caption{Clustering of the samples and silhouette/ABSOLUTE purity distribution.\label{fig:clustering}}
 \end{figure}
 
-\begin{figure}
-\vspace{-.25cm}
-\hspace{-.5cm}
-\includegraphics[width=.55\textwidth]{figs/clustered_purity_boxplot.eps}
-\caption{Distribution of ABSOLUTE purity for each cluster.\label{fig:boxplot purity}}
+Out of the 7 clusters provided by TCGA, clusters 5, 6 and 7 are significantly smaller than the other ones (Figures~\ref{fig:silhouettes}~and~\ref{fig:stats clusters}).
+
+\begin{figure}[!h]
+\includegraphics[width=.5\textwidth,trim={1cm 1cm 0 1cm},clip]{figs/stats_per_cluster.eps}
+\caption{ABSOLUTE Purity min/mean/max per cluster and cluster sizes. Star markers refer to ABSOLUTE purity values and circle markers refer to number
+of samples in the clusters.\label{fig:stats clusters}}
+\end{figure}
+
+\begin{figure}[!h]
+\includegraphics[width=.5\textwidth,trim={1cm 1cm 0 .5cm},clip]{figs/means_difference_significance.eps}
+\caption{$p$-values of the difference of the means of ABSOLUTE purity of each cluster pair.
+Non-significant couples ($p > 0.05$) are marked with a black cross.\label{fig:means difference significance}}
 \end{figure}
 
 \section{Materials and Methods}
@@ -227,21 +230,26 @@ Significance indices ($p$-values) for Pearson's correlation coefficients are com
 the sample size since this statistic follows a Student's t with $N-2$ degrees of freedom~\citep{lee1988thirteen} (with bivariate normal distribution assumption which
 can be discarded provided the sample size is sufficiently big).
 
-Figure~\ref{fig:r to p} shows the associated $p$-value of every correlation coefficient (in absolute value) as well as significance threshold $p = 0.05$, $p = 0.01$, and $p = 0.001$
-and their associated quantiles. The lower right corner of the figure is a bit messy due to numerical stability issues. Nonetheless, the $p$-values keep decreasing for higher
-values of $\abs r$.
+Figure~\ref{fig:r to p} shows the associated $p$-value of every correlation coefficient (in absolute value) as well as significance threshold $p = 0.05$, $p = 0.01$, $p = 0.001$,
+and $p = 10^{-8}$ and their associated quantiles. The lower right corner of the figure is a bit messy due to numerical stability issues. Nonetheless, the $p$-values keep
+decreasing for higher values of $\abs r$.
 
 \begin{figure}[!h]
-\includegraphics[width=.5\textwidth]{figs/r_to_p.eps}
-\caption{Associated $p$-value for $\abs r$.\label{fig:r to p}}
+\includegraphics[width=.5\textwidth,trim={0 0 0 1cm},clip]{figs/r_to_p.eps}
+\caption{Associated $p$-value for $\abs r$. Dotted red lines represent the significance thresholds and their associated quantiles. Quantiles are displayed in diagonal
+on the horizontal axis.\label{fig:r to p}}
 \end{figure}
 
 For Figure~\ref{fig:abs vs ihc}, $N=248$ because samples TCGA-C8-A130-01 and TCGA-C8-A133-01 did not have provided IHC purity, so they were removed from the samples
-for this correlation analysis.
+for this correlation analysis. For Table~\ref{tab:correlations}, $N = 250$, i.e. every sample is used to test correlation.
 
 \subsection{Independence tests}
 Independence tests between two variables were performed using a $\chi^2$-test. For Figures~\ref{fig:nb mutations vs abs}~and~\ref{fig:nb mutations vs ihc}, the purity is a
 continuous variable, therefore it has been discretized into 20 subintervals of equal size in order to make a proper contingency table for the $\chi^2$.
+
+\subsection{NMF Clustering}
+The NMF clustering of the samples comes from the one performed by TCGA which was performed on 1093 samples including the 250 samples used in this study. Only the samples
+of interest have been kept, the others have been discarded.
 
 \section{Conclusion}
 Blablabla...
