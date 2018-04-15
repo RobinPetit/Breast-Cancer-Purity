@@ -1,0 +1,9 @@
+*.log
+*.out
+*.sync.gz
+*.aux
+*.toc
+*.bbl
+*.blg
+*.dvi
+*.ps

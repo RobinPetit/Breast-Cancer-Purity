@@ -1,0 +1,253 @@
+\documentclass[letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[sort, colon]{natbib}
+\usepackage{alifexi}
+\usepackage[bottom]{footmisc}
+\usepackage[colorlinks=true,citecolor=green,linkcolor=blue]{hyperref}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{tabulary}
+\usepackage{flushend}
+\usepackage{dblfloatfix}
+\usepackage[export]{adjustbox}
+
+\usepackage{xcolor}  % To be removed in the end
+
+\usepackage{amsmath}
+\usepackage{commath}
+
+\urlstyle{same}
+
+\newcommand{\TODO}[1]{\textcolor{red}{TODO: {#1}}}
+
+\title{BINF-F401 --- \textit{Analysis of functional and comparative genomic data}\\
+Study of tumorous purity in breast cancer}
+\author{Robin Petit$^\dagger$\\
+\mbox{}\\
+$^\dagger$robpetit@ulb.ac.be}
+\date{June, 14 2018}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+	This is not an abstract
+\end{abstract}
+
+\section{Introduction}
+Table~\ref{tab:abbrev} contains all the abbreviations used in this paper. Please refer to this table in case of incomprehension.
+
+\begin{table}[!h]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Abbreviation & Meaning \\ \hline \hline
+BRCA & Breast Cancer \\ \hline
+CDF & Cumulated Density Function \\ \hline
+ER & Estrogen Receptor \\ \hline
+GSE & Gene Set Enrichment \\ \hline
+IHC & Immunohistochemistry \\ \hline
+LCIS & Lobular Breast Carcinoma \textit{in situ} \\ \hline
+NMF & Non-Negative Matrix Factorization \\ \hline
+PDF & Probability Density Function \\ \hline
+PR & Progesterone Receptor \\ \hline
+TCGA & The Cancer Genome Atlas \\ \hline
+\end{tabular}
+\caption{Meaning of common abbreviations used in this paper.\label{tab:abbrev}}
+\end{table}
+
+The purity of a tumor is the proportion of cancerous cells that is present in the tumor. It is pathologists' responsibility to determine this purity
+by analysing histopathological slides of the tumor and counting all the different types of cells. Yet, a pathologist is unable to analyse the whole
+tumor which would take an enormous amount of time. Therefore, depending on the objective of the slide analysis, several computer-aided methods have
+been developed to either segment the slides~\citep{sirinukunwattana2016locality,xing2016robust,komura2017machine}, or analyse the tumor genetically
+to find the somatic DNA alterations~\citep{carter2012absolute} or even use whole-genome and whole-exome sequencing~\citep{oesper2014quantifying}.
+
+The Cancer Genome Atlas (TCGA)~\citep{weinstein2013cancer} has become an important database for cancer-related data. 250 samples have been taken from there in order to
+analyze tumorous purity (both ABSOLUTE~\citep{carter2012absolute} and IHC) through mutations in genes (see Table~\ref{tab:genes}), NMF of mRNA-seq
+and GSE~\citep{subramanian2005gene}.
+
+\begin{table*}[!t]
+\centering
+\vspace{-.5cm}
+\begin{tabular}{c|c|c}
+HGNC Approved Symbol & Entrez ID & Related Cancer Type \\ \hline \hline
+CDH1 & 999 & LCIS~\citep{berx1998mutations} \\ \hline
+GATA3 & 2625 & ER-$\alpha$ related~\citep{ciocca2009significance} \\ \hline
+MAP3K1 & 4214 & Invasive BRCA~\citep{easton2007genome} \\ \hline
+PIK3CA & 5290 & Invasive BRCA and ER/PR-related~\citep{saal2005pik3ca} \\ \hline
+TP53 & 7157 & BRCA~\citep{gasco2002p53}
+\end{tabular}
+\caption{Genes considered in this study with both their HGNC symbol which (used further down) and their Entrez ID.\label{tab:genes}}
+\end{table*}
+
+\TODO{extend introduction...}
+
+\newpage
+\section{Results}
+\subsection{Comparison between IHC and ABSOLUTE purities}
+When comparing IHC purity versus ABSOLUTE purity, we observed that these measures only slightly correlate: Spearman's $r_S = 0.355$ and Pearson's $r_P = 0.36$.
+Yet, they do correlate significantly with $p < 10^{-8}$.
+
+\begin{figure}[!h]
+%\vspace{-.5cm}
+\hspace{-.6cm}
+\includegraphics[width=.5\textwidth,trim={0 0 0 1.5cm},clip]{figs/abs_vs_ihc.eps}
+\vspace{-1cm}
+\caption{\textit{(Up)} Couples (IHC, ABSOLUTE) purities. The dot-dashed line is the theoretical $\text{IHC} = \text{ABSOLUTE}$ curve. It is known that pathologists
+are biased on their work~\citep{fandel2008we}, in this case, IHC purities seem to overestimate the purity of tumors.
+\textit{(Down)} Frequency of difference between IHC purity and ABSOLUTE purity.\label{fig:abs vs ihc}}
+\end{figure}
+
+More specifically, IHC measures tend to be greater than ABSOLUTE evaluations (Figure~\ref{fig:abs vs ihc}) with a mean of $\text{IHC} - \text{ABSOLUTE}$ of $0.202$
+and a standard deviation of $0.175$. This indicates that either pathologists overestimate homogeneity in tumors or ABSOLUTE underestimates it. It must be kept in
+mind that ABSOLUTE has been known to underestimate purity in certain cases~\citep{oesper2014quantifying}. Still, ABSOLUTE estimations are known to be highly
+accurate~\citep{carter2012absolute}.
+
+\subsection{Influence of mutations on ABSOLUTE purity}
+The distribution of the number of mutations of each gene from Table~\ref{tab:genes} is shown on Figure~\ref{fig:mutations distribution}. We can observe that for each
+gene, more than $50\%$ of samples are not mutated, and that CDH1, GATA3, MAP3K1 are highly non-mutated (more than $80\%$ of samples).
+
+Though, when summing the mutations of every gene, the mode becomes 1 mutation with only around $25\%$ of samples having no mutations at all, therefore around $75\%$
+of samples have at least one of these five genes which is mutated.
+
+\begin{figure}[!h]
+\hspace{-.5cm}
+{\includegraphics[width=.55\textwidth,trim={0 0 0 2cm},clip]{figs/mutations_distribution.eps}
+\vspace{-1cm}
+\caption{Distribution of the number of mutations of each gene from Table~\ref{tab:genes} and of the sum on all genes.\label{fig:mutations distribution}}}
+\end{figure}
+
+\begin{figure*}[!t]
+\begin{subfigure}{.49\textwidth}
+\vspace{-.75cm}
+\hspace{-.5cm}
+\includegraphics[width=1.1\textwidth]{figs/nb_muts_vs_abs.eps}
+\vspace{-1cm}
+\subcaption{Relation between ABSOLUTE purity and number of mutations for each gene and for the cumulation of every genes. Significance of the dependence of these two quantities
+is indicated next to the name of the concerned gene.\label{fig:nb mutations vs abs}}
+\end{subfigure}
+\begin{subfigure}{.49\textwidth}
+\vspace{-.75cm}
+\includegraphics[width=1.1\textwidth]{figs/nb_muts_vs_abs_binarized.eps}
+\vspace{-1cm}
+\subcaption{Relation between ABSOLUTE purity and presence of mutations for each gene and for the cumulation of every genes. Significance of the dependence of these two quantities
+is indicated next to the name of the concerned gene.\label{fig:nb mutations vs abs binarized}}
+\end{subfigure}
+\begin{subfigure}{.49\textwidth}
+\vspace{-.75cm}
+\hspace{-.5cm}
+\includegraphics[width=1.1\textwidth]{figs/nb_muts_vs_ihc.eps}
+\vspace{-1cm}
+\subcaption{Adaptation of Figure~\ref{fig:nb mutations vs abs} for IHC purity.\label{fig:nb mutations vs ihc}}
+\end{subfigure}
+\begin{subfigure}{.49\textwidth}
+\vspace{-.75cm}
+\includegraphics[width=1.1\textwidth]{figs/nb_muts_vs_ihc_binarized.eps}
+\vspace{-1cm}
+\subcaption{Adaptation of Figure~\ref{fig:nb mutations vs abs binarized} for IHC purity.\label{fig:nb mutations vs ihc binarized}}
+\end{subfigure}
+\caption{Relation between mutations and ABSOLUTE/IHC purity.}
+\end{figure*}
+
+Moreover, the only pairs of genes showing significant correlation ($p < 0.05$) in the number of mutations are (CDH1, GATA3), (CDH1, TP53), (MAP3K1, TP53)
+and (PIK3CA, TP53). All the other pairs cannot be considered correlated (see Table~\ref{tab:correlations nb mutations}). Also, these correlations are negative and light
+($-0.21 \leq r \leq -0.127$) meaning that a bigger number of mutations in TP53 is correlated with a lower number of mutations of CDH1, MAP3K1 and PIK3CA, and a
+bigger number of mutations of GATA3 is correlated with a lower number of mutations of CDH1.
+
+When aggregating all the mutations together, the correlation coefficient of these four gene pairs stays roughly constant except for (PIK3CA, TP53) for which the
+correlation increased from $-0.127$ to $-0.161$. Also a new pair of genes has become significantly correlated: (CDH1, PIK3CA); and except that one pair,
+no pair has changed significance threshold. We also noticed that this last pair has positive correlation.
+
+\begin{table}[!h]
+\begin{subtable}{.5\textwidth}
+\begin{tabular}{r|c|c|c|c}
+       & GATA3        & MAP3K1   & PIK3CA       & TP53           \\ \hline
+CDH1   & $-0.129^{*}$ & $-0.034$ & $+0.114$     & $-0.210^{***}$ \\ \hline
+GATA3  &              & $+0.011$ & $-0.114$     & $-0.078$       \\ \hline
+MAP3K1 &              &          & $+0.058$     & $-0.170^{**}$  \\ \hline
+PIK3CA &              &          &              & $-0.127^{*}$
+\end{tabular}
+\subcaption{Pearson's $r$ coefficient of the number of mutations for each pair of genes.\label{tab:correlations nb mutations}}
+\end{subtable}
+\begin{subtable}{.5\textwidth}
+\begin{tabular}{r|c|c|c|c}
+       & GATA3        & MAP3K1   & PIK3CA       & TP53           \\ \hline
+CDH1   & $-0.131^{*}$ & $-0.037$ & $+0.125^{*}$ & $-0.214^{***}$ \\ \hline
+GATA3  &              & $+0.008$ & $-0.107$     & $-0.075$       \\ \hline
+MAP3K1 &              &          & $+0.073$     & $-0.175^{**}$  \\ \hline
+PIK3CA &              &          &              & $-0.161^{*}$
+\end{tabular}
+\subcaption{Pearson's $r$ coefficient of the presence of mutations for each pair of genes.\label{tab:correlations binarized}}
+\end{subtable}
+\caption{Correlation between the number of mutations or the presence of mutations for each pair of genes from Table~\ref{tab:genes}. \\
+{\scriptsize Legend: $^{*}$: $p < 0.05$, $^{**}$: $p < 0.01$, $^{***}$: $p < 0.001$}.\label{tab:correlations}}
+\end{table}
+
+No dependence between the number of mutations of any gene and the ABSOLUTE purity (nor from the sum of all mutations and the ABSOLUTE purity) was detectable
+(Figure~\ref{fig:nb mutations vs abs}): these quantities are independent to one another. Even when aggregating all the mutations such that each gene is either
+mutated or non-mutated, no dependence is noticeable (Figure~\ref{fig:nb mutations vs abs binarized}).
+
+The same result stands for the independence of the mutations (or number of mutations) and the IHC purity (see Figures~\ref{fig:nb mutations vs ihc}
+and~\ref{fig:nb mutations vs ihc binarized}).
+
+\subsection{Clustering}
+
+\TODO{Detail Figures~\ref{fig:clustering}~and~\ref{fig:boxplot purity}}
+
+\begin{figure}
+\hspace{-.5cm}
+\begin{subfigure}{.5\textwidth}
+\vspace{-.75cm}
+\includegraphics[width=1.1\textwidth]{figs/silhouette.eps}
+\subcaption{Silhouette analysis for NMF clustering with $7$ clusters.\label{fig:silhouettes}}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=1.1\textwidth]{figs/clustered_silhouette_boxplot.eps}
+\subcaption{Distribution of silhouette width for each cluster.\label{fig:boxplot silhouette}}
+\end{subfigure}
+\caption{Clustering of the samples and silhouette distribution.\label{fig:clustering}}
+\end{figure}
+
+\begin{figure}
+\vspace{-.25cm}
+\hspace{-.5cm}
+\includegraphics[width=.55\textwidth]{figs/clustered_purity_boxplot.eps}
+\caption{Distribution of ABSOLUTE purity for each cluster.\label{fig:boxplot purity}}
+\end{figure}
+
+\section{Materials and Methods}
+All of the (Python3) source code used in this study as well as this very document are available at the following web page: \url{https://github.com/RobinPetit/Breast-Cancer-Purity}.
+
+The data used in this study are those provided for the project, comprising 250 samples with both IHC and ABSOLUTE purities and mutations of each gene of Table~\ref{tab:genes}
+as well as those required to be downloaded.
+
+\subsection{Significance of Pearson's $r$ correlation coefficient}
+Significance indices ($p$-values) for Pearson's correlation coefficients are computed by a $t$-score: $t = r_P\sqrt{(N-2)/(1-{r_P}^2)}$ with $r_P$ being Pearson's $r$ and $N$
+the sample size since this statistic follows a Student's t with $N-2$ degrees of freedom~\citep{lee1988thirteen} (with bivariate normal distribution assumption which
+can be discarded provided the sample size is sufficiently big).
+
+Figure~\ref{fig:r to p} shows the associated $p$-value of every correlation coefficient (in absolute value) as well as significance threshold $p = 0.05$, $p = 0.01$, and $p = 0.001$
+and their associated quantiles. The lower right corner of the figure is a bit messy due to numerical stability issues. Nonetheless, the $p$-values keep decreasing for higher
+values of $\abs r$.
+
+\begin{figure}[!h]
+\includegraphics[width=.5\textwidth]{figs/r_to_p.eps}
+\caption{Associated $p$-value for $\abs r$.\label{fig:r to p}}
+\end{figure}
+
+For Figure~\ref{fig:abs vs ihc}, $N=248$ because samples TCGA-C8-A130-01 and TCGA-C8-A133-01 did not have provided IHC purity, so they were removed from the samples
+for this correlation analysis.
+
+\subsection{Independence tests}
+Independence tests between two variables were performed using a $\chi^2$-test. For Figures~\ref{fig:nb mutations vs abs}~and~\ref{fig:nb mutations vs ihc}, the purity is a
+continuous variable, therefore it has been discretized into 20 subintervals of equal size in order to make a proper contingency table for the $\chi^2$.
+
+\section{Conclusion}
+Blablabla...
+
+\newpage
+\footnotesize
+\bibliographystyle{apalike}
+\bibliography{report}{}
+\end{document}
