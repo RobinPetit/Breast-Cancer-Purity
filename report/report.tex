@@ -31,10 +31,6 @@ $^\dagger$robpetit@ulb.ac.be}
 \begin{document}
 \maketitle
 
-\begin{abstract}
-	This is not an abstract
-\end{abstract}
-
 \section{Introduction}
 Table~\ref{tab:abbrev} contains all the abbreviations used in this paper. Please refer to this table in case of incomprehension.
 
@@ -81,9 +77,6 @@ TP53 & 7157 & BRCA~\citep{gasco2002p53}
 \caption{Genes considered in this study with both their HGNC symbol which (used further down) and their Entrez ID.\label{tab:genes}}
 \end{table*}
 
-\TODO{extend introduction...}
-
-\newpage
 \section{Results}
 \subsection{Comparison between IHC and ABSOLUTE purities}
 When comparing IHC purity versus ABSOLUTE purity, we observed that these measures only slightly correlate: Spearman's $r_S = 0.355$ and Pearson's $r_P = 0.36$.
@@ -92,9 +85,9 @@ Yet, they do correlate significantly with $p < 10^{-8}$.
 \begin{figure}[!h]
 \hspace{-.6cm}
 \includegraphics[width=.5\textwidth,trim={0 2cm 0 2cm},clip]{figs/abs_vs_ihc.eps}
-\caption{\textit{(Up)} Couples (IHC, ABSOLUTE) purities. The dot-dashed line is the theoretical $\text{IHC} = \text{ABSOLUTE}$ curve. It is known that pathologists
+\caption{\textbf{(Up)} Couples (IHC, ABSOLUTE) purities. The dot-dashed line is the theoretical $\text{IHC} = \text{ABSOLUTE}$ curve. It is known that pathologists
 are biased on their work~\citep{fandel2008we}, in this case, IHC purities seem to overestimate the purity of tumors.
-\textit{(Down)} Frequency of difference between IHC purity and ABSOLUTE purity.\label{fig:abs vs ihc}}
+\textbf{(Down)} Frequency of difference between IHC purity and ABSOLUTE purity.\label{fig:abs vs ihc}}
 \end{figure}
 
 More specifically, IHC measures tend to be greater than ABSOLUTE evaluations (Figure~\ref{fig:abs vs ihc}) with a mean of $\text{IHC} - \text{ABSOLUTE}$ of $0.202$
@@ -177,14 +170,19 @@ PIK3CA &              &          &              & $-0.161^{*}$
 {\scriptsize Legend: $^{*}$: $p < 0.05$, $^{**}$: $p < 0.01$, $^{***}$: $p < 0.001$}.\label{tab:correlations}}
 \end{table}
 
-No dependence between the number of mutations of any gene and the ABSOLUTE purity (nor from the sum of all mutations and the ABSOLUTE purity) was detectable
-(Figure~\ref{fig:nb mutations vs abs}): these quantities are independent to one another. Even when aggregating all the mutations such that each gene is either
-mutated or non-mutated, no dependence is noticeable (Figure~\ref{fig:nb mutations vs abs binarized}).
-
-The same result stands for the independence of the mutations (or number of mutations) and the IHC purity (see Figures~\ref{fig:nb mutations vs ihc}
-and~\ref{fig:nb mutations vs ihc binarized}).
-
-\subsection{Clustering}
+\begin{figure}[!h]
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth,trim={1cm 1cm 0 .5cm},clip]{figs/all_clusters_size.eps}
+\subcaption{Size of each cluster in both the original clusters provided by TCGA and the restrained clusters with only the 250 samples for this study.
+The proportion of each cluster that is kept when restraining them is also shown in green stars. The proportion of samples in the cluster having negative
+silhouette is also shown in stars (red for the restrained clusters and blue for the original TCGA clusters)\label{fig:all clusters size}}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth,trim={1cm 1cm 1.5cm 1cm},clip]{figs/stats_per_cluster.eps}
+\subcaption{ABSOLUTE purity minimum, mean, median and maximum per cluster.\label{fig:absolute stats per cluster}}
+\end{subfigure}
+\caption{Distribution of size, proportion and ABSOLUTE purity per cluster.\label{stats per cluster}}
+\end{figure}
 
 \begin{figure}
 \begin{subfigure}{.5\textwidth}
@@ -200,27 +198,50 @@ and~\ref{fig:nb mutations vs ihc binarized}).
 \begin{subfigure}{.5\textwidth}
 \hspace{-.5cm}
 \includegraphics[width=1.1\textwidth,trim={0 0 0 1cm},clip]{figs/clustered_purity_boxplot.eps}
-\subcaption{Distribution of silhouette width for each cluster.\label{fig:boxplot ABSOLUTE}}
+\subcaption{Distribution of ABSOLUTE purity for each cluster.\label{fig:boxplot ABSOLUTE}}
 \end{subfigure}
 \caption{Clustering of the samples and silhouette/ABSOLUTE purity distribution.\label{fig:clustering}}
 \end{figure}
 
-Out of the 7 clusters provided by TCGA, clusters 5, 6 and 7 are significantly smaller than the other ones (Figures~\ref{fig:silhouettes}~and~\ref{fig:stats clusters}).
+No dependence between the number of mutations of any gene and the ABSOLUTE purity (nor from the sum of all mutations and the ABSOLUTE purity) was detectable
+(Figure~\ref{fig:nb mutations vs abs}): these quantities are independent to one another. Even when aggregating all the mutations such that each gene is either
+mutated or non-mutated, no dependence is noticeable (Figure~\ref{fig:nb mutations vs abs binarized}).
+
+The same result stands for the independence of the mutations (or number of mutations) and the IHC purity (see Figures~\ref{fig:nb mutations vs ihc}
+and~\ref{fig:nb mutations vs ihc binarized}).
+
+\subsection{Clustering}
+
+Out of the 7 clusters provided by TCGA, clusters 6 and 7 are significantly smaller than the other ones (Figures~\ref{fig:all clusters size}~and~\ref{fig:silhouettes}),
+and we observed that the distribution of the samples into the clusters is highly unequal (Figure~\ref{fig:all clusters size}). Also, we noticed that beside not being
+equal in size in the original data, the clusters do not contain the same proportion of the studied samples: the kept proportion in the restrained clusters is not
+constant.
+
+When looking at a cluster that would be linked to higher purity than the others, only clusters 1 and 4 showed significance (with respectively $p = 1.45 \times 10^{-7}$
+and $p = 5.33 \times 10^{-4}$), and when looking at clusters that would be linked to higher purity than the whole set of samples, the same two were found
+(with respectively $p = 2.55 \times 10^{-5}$ and $p = 4.72 \times 10^{-3}$).
+
+Significance of difference between the mean ABSOLUTE purity between each pair of cluster can be seen on Figure~\ref{fig:Mann Whitney significance}. We can indeed observe that
+cluster 1 shows to be statistically bigger than all the other clusters in terms of ABSOLUTE purity, except cluster 4.
 
 \begin{figure}[!h]
-\includegraphics[width=.5\textwidth,trim={1cm 1cm 0 1cm},clip]{figs/stats_per_cluster.eps}
-\caption{ABSOLUTE Purity min/mean/max per cluster and cluster sizes. Star markers refer to ABSOLUTE purity values and circle markers refer to number
-of samples in the clusters.\label{fig:stats clusters}}
-\end{figure}
-
-\begin{figure}[!h]
-\includegraphics[width=.5\textwidth,trim={1cm 1cm 0 .5cm},clip]{figs/means_difference_significance.eps}
-\caption{$p$-values of the difference of the means of ABSOLUTE purity of each cluster pair.
-Non-significant couples ($p > 0.05$) are marked with a black cross.\label{fig:means difference significance}}
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth,trim={1cm 1cm 0 .5cm},clip]{figs/means_difference_significance.eps}
+\subcaption{$p$-values of the difference of the means of ABSOLUTE purity of each cluster pair.
+Non-significant couples ($p > 0.05$) are marked with a black cross.}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth,trim={1cm 1cm 0 .5cm},clip]{figs/means_greater_significance.eps}
+\subcaption{$p$-values of 1-tailed Mann-Whitney $U$-test on each pair of clusters testing if one is greater than the other.}
+\end{subfigure}
+\caption{$p$-values of Mann-Whitney $U$ tests on clusters.
+\label{fig:Mann Whitney significance}}
 \end{figure}
 
 \section{Materials and Methods}
-All of the (Python3) source code used in this study as well as this very document are available at the following web page: \url{https://github.com/RobinPetit/Breast-Cancer-Purity}.
+All of the (Python 3.5) source code used in this study as well as this very document are available at the following web page:
+\url{https://github.com/RobinPetit/Breast-Cancer-Purity}. The non-standard libraries used are \texttt{scipy} (1.1.0) and
+\texttt{numpy} (1.14.3).
 
 The data used in this study are those provided for the project, comprising 250 samples with both IHC and ABSOLUTE purities and mutations of each gene of Table~\ref{tab:genes}
 as well as those required to be downloaded.
@@ -245,14 +266,33 @@ for this correlation analysis. For Table~\ref{tab:correlations}, $N = 250$, i.e.
 
 \subsection{Independence tests}
 Independence tests between two variables were performed using a $\chi^2$-test. For Figures~\ref{fig:nb mutations vs abs}~and~\ref{fig:nb mutations vs ihc}, the purity is a
-continuous variable, therefore it has been discretized into 20 subintervals of equal size in order to make a proper contingency table for the $\chi^2$.
+continuous variable, therefore it has been discretized into 20 subintervals of equal size in order to make a proper contingency table for the $\chi^2$. Still, this test
+doesn't seem appropriate because it is way too sensitive to the discretization of the variable (number of intervals when splitting).
 
 \subsection{NMF Clustering}
 The NMF clustering of the samples comes from the one performed by TCGA which was performed on 1093 samples including the 250 samples used in this study. Only the samples
 of interest have been kept, the others have been discarded.
 
+The difference of distribution between each pair of clusters has been tested by a two-sided Mann-Whitney $U$ test (Figure~\ref{fig:Mann Whitney significance}) because
+the distribution of ABSOLUTE purity per cluster (Figure~\ref{fig:absolute purity distribution per cluster}) is clearly not Gaussian-like, and samples are not numerous enough
+for asymptotic results to be of any help. Also, a one-sided Mann-Whitney $U$ test has been performed in order to test the hypothesis that one cluster has higher mean ABSOLUTE
+purity than another.
+
+Finally, two more hypotheses have been tested regarding the clustering: each cluster has been tested to show if its ABSOLUTE purity mean is higher than the union of either
+all of the other clusters or all the samples; i.e. is cluster $i$'s mean purity higher than mean purity in the whole dataset or higher than mean purity in the whole dataset
+except samples of cluster $i$? Again, this has been performed with a one-sided Mann-Whitney $U$ test.
+
+\begin{figure*}[!t]
+\includegraphics[width=\textwidth,trim={4cm 0 4cm 0},clip]{figs/abs_distribution_per_cluster.eps}
+\caption{Distribution of the ABSOLUTE purity for each cluster.\label{fig:absolute purity distribution per cluster}}
+\end{figure*}
+
 \section{Conclusion}
-Blablabla...
+To summarize, it has been found in this project that IHC purity and ABSOLUTE purity slightly correlate but are still very different, meaning that at least one of these is
+not a good measure. We followed by assuming that the ABSOLUTE purity was the proper way to measure purity, finding that the $70\%$ purity criterion of TCGA is not well
+fulfilled by the provided samples. When looking for genes mutations associated to high ABSOLUTE purity, no convincing result were extracted, but this is probably also
+due to the wrong statistical framework applied to it. Also, among the subtypes of cancer that were pre-computed (clusters), two showed statistically significant greater
+ABSOLUTE purity than the rest of the samples.
 
 \newpage
 \footnotesize
